@@ -1,0 +1,44 @@
+{
+ "book_id": "open-maths-4-6",
+ "title": "Open Curriculum Maths, Grades 4–6",
+ "subject": "maths",
+ "grade": "4–6",
+ "origin": "bundled",
+ "attribution": "Based on IM® K–12 Math authored by Illustrative Mathematics and licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: im.kendallhunt.com. Changes: multi-part problems split into single questions, problems that need diagrams left out, answers and chapter summaries written by Why Court.",
+ "chapters": [
+  {"chapter_id": "g4u2", "number": "G4 · Unit 2", "title": "Fraction Equivalence and Comparison", "pages": [0, 0],
+   "key_rules": "Compare fractions by reasoning about the size of the parts and how many parts there are: with the same denominator, more parts is greater; with the same numerator, smaller parts (bigger denominator) is less. Compare to benchmarks like 1/2 and 1, or rewrite with a common denominator. Equivalent fractions name the same point on the number line.",
+   "exercises": [
+    {"id": "A·7a", "text": "Which is greater: 1/8 or 1/10? Explain or show your reasoning.", "options": ["1/8", "1/10"], "answer": "1/8"},
+    {"id": "A·7b", "text": "Which is greater: 4/10 or 7/10? Explain or show your reasoning.", "options": ["4/10", "7/10"], "answer": "7/10"},
+    {"id": "A·7c", "text": "Which is greater: 4/5 or 5/4? Explain or show your reasoning.", "options": ["4/5", "5/4"], "answer": "5/4"},
+    {"id": "A·10", "text": "Is 4/5 more or less than 1/2? Explain your reasoning.", "options": ["more", "less"], "answer": "more"},
+    {"id": "C·1a", "text": "Which fraction is greater: 2/5 or 2/6? Explain or show your reasoning.", "options": ["2/5", "2/6"], "answer": "2/5"},
+    {"id": "C·1b", "text": "Which fraction is greater: 5/8 or 7/8? Explain or show your reasoning.", "options": ["5/8", "7/8"], "answer": "7/8"},
+    {"id": "C·1c", "text": "Which fraction is greater: 9/10 or 103/100? Explain or show your reasoning.", "options": ["9/10", "103/100"], "answer": "103/100"},
+    {"id": "C·3", "text": "There is a water fountain 7/10 mile from the start of a hiking trail. There is a pond 3/5 mile from the start. Walking from the start, which will a hiker come across first? Explain your reasoning.", "options": ["the water fountain", "the pond"], "answer": "the pond"},
+    {"id": "C·5", "text": "List these fractions from least to greatest: 1/3, 5/12, 2/10. Explain or show your reasoning.", "options": [], "answer": "2/10, 1/3, 5/12"},
+    {"id": "B·1", "text": "Name three fractions that are equivalent to 2/5. Explain or show your reasoning.", "options": [], "answer": "For example 4/10, 6/15, 8/20"},
+    {"id": "B·3", "text": "Explain why the fractions 10/3 and 40/12 are equivalent.", "options": [], "answer": "Multiplying the numerator and denominator of 10/3 by 4 gives 40/12, so they name the same amount"},
+    {"id": "C·8", "text": "Find a fraction that is between 2/5 and 3/8. Explain or show your reasoning.", "options": [], "answer": "For example 31/80 (2/5 = 32/80 and 3/8 = 30/80)"}
+   ]},
+  {"chapter_id": "g4u4a", "number": "G4 · Unit 4A", "title": "Decimals with Tenths and Hundredths", "pages": [0, 0],
+   "key_rules": "Tenths and hundredths can be written as fractions or decimals: 2/10 = 0.2 = 0.20 = 20/100. To compare decimals, compare place by place from the left: ones, then tenths, then hundredths. More digits does not mean a bigger number.",
+   "exercises": [
+    {"id": "A·7", "text": "Compare 0.6 and 0.35. Which is greater? Explain your reasoning.", "options": ["0.6", "0.35"], "answer": "0.6"},
+    {"id": "A·6", "text": "Which of these numbers are equivalent to 2/10: 0.5, 0.2, 20/100, 25/100, 0.20?", "options": [], "answer": "0.2, 20/100 and 0.20"},
+    {"id": "A·8", "text": "Order the numbers from least to greatest: 5.90, 9.05, 5.95, 0.59, 5.59.", "options": [], "answer": "0.59, 5.59, 5.90, 5.95, 9.05"},
+    {"id": "A·9", "text": "Order the numbers from least to greatest: 13/10, 1.25, 1.46, 7/5, 155/100.", "options": [], "answer": "1.25, 13/10, 7/5, 1.46, 155/100"}
+   ]},
+  {"chapter_id": "g6u7l3", "number": "G6 · Unit 7 · Lesson 3", "title": "Comparing Positive and Negative Numbers", "pages": [0, 0],
+   "key_rules": "On a number line, numbers increase to the right. A number to the left is less, even if its digits look bigger: -12 is greater than -15, and -12.5 is less than -12.",
+   "exercises": [
+    {"id": "1a", "text": "True or false: -5 > 2. Explain your reasoning.", "options": ["true", "false"], "answer": "false"},
+    {"id": "1b", "text": "True or false: 3 > -8. Explain your reasoning.", "options": ["true", "false"], "answer": "true"},
+    {"id": "1c", "text": "True or false: -12 > -15. Explain your reasoning.", "options": ["true", "false"], "answer": "true"},
+    {"id": "1d", "text": "True or false: -12.5 > -12. Explain your reasoning.", "options": ["true", "false"], "answer": "false"},
+    {"id": "2", "text": "It is true that -8.7 < -8.4. Which number is further to the right on the number line?", "options": ["-8.7", "-8.4"], "answer": "-8.4"},
+    {"id": "4", "text": "Order these lowest points from least to greatest elevation: California -282 ft, Colorado 3350 ft, Louisiana -8 ft, New Mexico 2842 ft, Wyoming 3099 ft.", "options": [], "answer": "California, Louisiana, New Mexico, Wyoming, Colorado"}
+   ]}
+ ]
+}

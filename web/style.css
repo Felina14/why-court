@@ -1,0 +1,711 @@
+/* Why Court — comic book courtroom. Mobile first, desktop gets two columns. */
+/* Fonts are bundled so the courtroom looks right with no internet. Bangers and Nunito, SIL Open Font License 1.1 (see fonts/). */
+@font-face { font-family: Bangers; src: url('/static/fonts/bangers.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: Nunito; src: url('/static/fonts/nunito-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: Nunito; src: url('/static/fonts/nunito-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: Nunito; src: url('/static/fonts/nunito-800.woff2') format('woff2'); font-weight: 800; font-display: swap; }
+
+:root {
+  --ink: #15110d;
+  --paper: #f7ead1;
+  --panel: #fffaf0;
+  --red: #e03b2f;        /* prosecutor */
+  --blue: #1f6fd0;       /* defence */
+  --purple: #6b3fa0;     /* judge */
+  --green: #1f8a4c;       /* cleared */
+  --gold: #f6b93b;
+  --line: 3px;
+  --shadow: 6px 6px 0 var(--ink);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  margin: 0;
+  font-family: Nunito, "Segoe UI", system-ui, sans-serif;
+  font-weight: 600;
+  color: var(--ink);
+  background-color: var(--paper);
+  /* halftone dots */
+  background-image: radial-gradient(var(--ink) 1px, transparent 1.2px);
+  background-size: 14px 14px;
+  background-attachment: fixed;
+  font-size: 17px;
+  line-height: 1.45;
+}
+body::before { /* fade the dots so text stays readable */
+  content: ""; position: fixed; inset: 0; background: var(--paper); opacity: .88; z-index: -1;
+}
+
+h1, h2, h3, .bangers, .stamp, .bookcard b {
+  font-family: Bangers, Impact, sans-serif; font-weight: 400; letter-spacing: .04em;
+}
+h1 { font-size: clamp(2.4rem, 11vw, 4rem); line-height: .95; margin: .2em 0; }
+h2 { font-size: clamp(1.7rem, 7vw, 2.4rem); margin: 0 0 .3em; }
+h3 { font-size: 1.4rem; margin: 1.2em 0 .3em; }
+
+/* ---------- chrome ---------- */
+.top {
+  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; background: var(--ink); color: var(--paper);
+  border-bottom: var(--line) solid var(--ink);
+}
+.top .brand {
+  font-family: Bangers, Impact, sans-serif; font-size: 1.5rem; letter-spacing: .05em; white-space: nowrap;
+  background: none; border: 0; color: var(--gold); cursor: pointer; padding: 0;
+}
+.nav { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.navlink {
+  font-family: inherit; font-weight: 800; font-size: .85rem; color: var(--paper);
+  background: none; border: 0; padding: 8px; cursor: pointer; text-decoration: none; border-radius: 6px;
+}
+.navlink:hover { background: #ffffff22; }
+.toggle { display: flex; align-items: center; cursor: pointer; }
+.toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.toggle span {
+  display: block; padding: 6px 9px; border-radius: 6px; font-size: 1.05rem; line-height: 1;
+  border: 2px solid var(--paper); background: var(--gold);
+}
+.toggle input:not(:checked) + span { background: none; opacity: .55; }
+
+main { max-width: 1180px; margin: 0 auto; padding: 16px; }
+@media (min-width: 700px) { main { padding: 28px 24px 28px; } }
+/* keep the header's contents on the same measure as the page */
+.top { padding-left: max(12px, calc((100vw - 1180px) / 2 + 24px)); padding-right: max(12px, calc((100vw - 1180px) / 2 + 24px)); }
+
+.screen { display: none; animation: pop .25s ease-out; }
+.screen.active { display: block; }
+@keyframes pop { from { opacity: 0; transform: translateY(8px); } }
+
+.lead { font-size: 1.05rem; margin-top: 0; max-width: 46ch; }
+.hint { font-size: .9rem; opacity: .75; }
+.attrib { font-size: .72rem; opacity: .7; margin-top: 8px; font-weight: 600; }
+
+/* ---------- comic furniture ---------- */
+.box, .card, .bookcard, .chap, .exhibit, .witness, .verdict, .rehear, .caseslate, .hearing {
+  background: var(--panel);
+  border: var(--line) solid var(--ink);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+}
+
+.issue {
+  display: inline-block; transform: rotate(-3deg); background: var(--gold);
+  border: var(--line) solid var(--ink); padding: 2px 10px; font-family: Bangers, Impact, sans-serif;
+  letter-spacing: .08em; box-shadow: 3px 3px 0 var(--ink); margin-bottom: 6px;
+}
+
+/* ---------- buttons ---------- */
+button, select, input, textarea { font-family: inherit; font-size: 1rem; font-weight: 700; color: var(--ink); }
+
+.primary, .secondary, .optbtn {
+  display: block; width: 100%; padding: 14px 16px; margin-top: 12px; cursor: pointer;
+  border: var(--line) solid var(--ink); border-radius: 4px; box-shadow: var(--shadow);
+  font-family: Bangers, Impact, sans-serif; font-size: 1.35rem; letter-spacing: .04em;
+  transition: transform .06s, box-shadow .06s;
+}
+.primary { background: var(--gold); }
+.secondary { background: var(--panel); }
+.optbtn { background: #fff; font-size: 1.5rem; }
+.primary:active, .secondary:active, .optbtn:active, .chip:active,
+.bookcard:active, .chap:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--ink); }
+.optbtn:hover, .primary:hover { background: var(--gold); filter: saturate(1.3); }
+button:disabled { opacity: .55; cursor: wait; }
+
+input[type=text], input:not([type]), textarea, select {
+  width: 100%; padding: 12px; margin-top: 8px; background: #fff;
+  border: var(--line) solid var(--ink); border-radius: 4px;
+}
+textarea { resize: vertical; }
+.row { display: flex; gap: 8px; }
+.row > * { flex: 1; }
+
+/* ---------- library ---------- */
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin: 16px 0 0; }
+.shelfboard { height: 14px; margin: 0 0 18px; background: #c9742d; border: var(--line) solid var(--ink); box-shadow: var(--shadow); }
+.bookcard {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start;
+  text-align: left; cursor: pointer; padding: 16px 14px 14px 26px;
+  min-height: 150px; background: linear-gradient(90deg, #c9742d 0 10px, var(--panel) 10px);
+}
+.bookcard::after { content: ""; position: absolute; left: 16px; top: 0; bottom: 0; width: 2px; background: #00000022; }
+.bookcard b { display: block; font-size: 1.25rem; line-height: 1.05; }
+.bookcard small { display: block; margin-top: 8px; font-size: .75rem; font-weight: 700; opacity: .75; }
+.chap { display: block; width: 100%; text-align: left; padding: 12px 14px; cursor: pointer; }
+.chap small { display: block; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
+.chap b { font-size: 1.05rem; }
+.grid { display: grid; gap: 12px; }
+@media (min-width: 700px) { .grid { grid-template-columns: 1fr 1fr; } }
+.back { width: auto; display: inline-block; font-size: 1rem; padding: 8px 14px; margin-bottom: 10px; }
+
+.card { padding: 14px; margin: 14px 0; }
+.card .q { font-size: 1.1rem; font-weight: 800; }
+.card .a { margin-top: 8px; }
+.exid { font-family: Bangers, Impact, sans-serif; letter-spacing: .08em; opacity: .7; }
+.opts-line { margin-top: 6px; font-weight: 800; opacity: .8; }
+.whyrow { display: flex; gap: 8px; align-items: flex-start; }
+.whyrow textarea { flex: 1; }
+.mic { margin-top: 8px; background: #fff; border: var(--line) solid var(--ink); border-radius: 4px; width: 48px; height: 48px; font-size: 1.2rem; cursor: pointer; box-shadow: 3px 3px 0 var(--ink); }
+.mic.on { background: var(--red); }
+.bigfile {
+  display: block; padding: 22px; margin: 12px 0; text-align: center; cursor: pointer;
+  background: #fff; border: var(--line) dashed var(--ink); border-radius: 4px; font-family: Bangers, Impact, sans-serif; font-size: 1.3rem;
+}
+.bigfile input { display: none; }
+#preview { width: 100%; border: var(--line) solid var(--ink); border-radius: 4px; margin-bottom: 10px; }
+.or { text-align: center; font-family: Bangers, Impact, sans-serif; font-size: 1.2rem; opacity: .6; margin: 6px 0; }
+details.card summary { font-family: Bangers, Impact, sans-serif; font-size: 1.2rem; cursor: pointer; }
+
+/* ---------- the courtroom strip ---------- */
+.caseslate { padding: 12px 14px; margin-bottom: 16px; background: var(--ink); color: var(--paper); }
+.caseslate .label { font-family: Bangers, Impact, sans-serif; color: var(--gold); letter-spacing: .1em; font-size: 1.1rem; }
+.caseslate .q { font-size: 1.05rem; font-weight: 800; }
+.caseslate .mine { margin-top: 6px; font-size: .92rem; }
+.caseslate .mine b { color: var(--gold); }
+
+/* thinking */
+.thinking {
+  padding: 18px; text-align: center; font-family: Bangers, Impact, sans-serif; font-size: 1.3rem;
+  border: var(--line) dashed var(--ink); border-radius: 4px; background: var(--panel);
+}
+.thinking .dots span { animation: blink 1.2s infinite; }
+.thinking .dots span:nth-child(2) { animation-delay: .2s; }
+.thinking .dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+
+/* verdict stamp */
+.stamp {
+  grid-column: 1 / -1; justify-self: center; margin: 6px 0; max-width: 100%;
+  padding: 10px 22px; font-size: clamp(1.5rem, 7vw, 1.9rem); letter-spacing: .08em; text-align: center;
+  border: 5px solid currentColor; border-radius: 6px; transform: rotate(-6deg);
+  animation: stampin .3s cubic-bezier(.2,1.6,.4,1) both;
+}
+@keyframes stampin { from { transform: rotate(-6deg) scale(2.2); opacity: 0; } }
+.stamp.win { color: var(--green); }
+.stamp.learn { color: var(--purple); }
+.stamp.help { color: var(--blue); }
+.stamp.oops { color: var(--red); }
+
+.actions { display: grid; gap: 10px; margin-top: 8px; }
+@media (min-width: 560px) { .actions { grid-template-columns: 1fr 1fr; } }
+#courtActions { margin-top: 18px; }
+#courtActions .card { grid-column: 1 / -1; }
+
+/* teacher page */
+table { width: 100%; border-collapse: collapse; background: var(--panel); border: var(--line) solid var(--ink); }
+th, td { border-bottom: 2px solid var(--ink); padding: 8px 10px; text-align: left; font-size: .9rem; }
+th { background: var(--ink); color: var(--paper); font-family: Bangers, Impact, sans-serif; letter-spacing: .06em; }
+
+/* teacher case files */
+td .secondary { width: auto; display: inline-block; margin: 0; padding: 6px 12px; font-size: 1rem; box-shadow: 3px 3px 0 var(--ink); }
+.statline { font-family: Bangers, Impact, sans-serif; font-size: 1.2rem; letter-spacing: .04em; }
+
+
+/* ======================================================================
+   DESKTOP. Phones get one column; wider screens get a real page layout:
+   a sticky case docket beside the comic strip, and buttons that are only
+   as wide as their words.
+   ====================================================================== */
+@media (min-width: 900px) {
+  body { font-size: 18px; }
+
+  /* buttons stop spanning the whole window */
+  .primary, .secondary { width: auto; display: inline-block; min-width: 240px; margin-right: 10px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; grid-template-columns: none; }
+  .actions .secondary { min-width: 0; margin: 0; }
+  .card .primary, .card .secondary { min-width: 260px; }
+  .bigfile { max-width: 420px; }
+  #episodeList .card, #caseList .card, #practiceQ .card, #exerciseList .card, #upload textarea { max-width: 820px; }
+  input[type=text], input:not([type]), textarea, select { max-width: 560px; }
+  .whyrow textarea { max-width: none; }
+  .row { max-width: 560px; }
+
+  /* home: words and the one big action on the left, the courtroom bench on the right */
+  .hero { display: grid; grid-template-columns: minmax(400px, 1fr) minmax(0, 1fr); gap: 44px; align-items: center; }
+  .bench { display: block; margin-bottom: 22px; }
+  .cta { width: 100%; min-width: 0; margin-right: 0; }
+  .steps { margin-top: 44px; }
+  .steps { grid-template-columns: repeat(4, 1fr); }
+
+  /* library: taller books, and the shelf board only as wide as the shelf */
+  /* the shelf board is only as wide as the books standing on it */
+  .shelfwrap { width: fit-content; max-width: 100%; }
+  .shelf { display: flex; flex-wrap: wrap; }
+  .bookcard { width: 236px; min-height: 230px; padding: 20px 18px 18px 32px; }
+  .bookcard b { font-size: 1.45rem; }
+  .back { min-width: 0; }
+
+  /* the courtroom: docket pinned on the left, strip on the right */
+  .courtwrap { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 28px; align-items: start; }
+  .docket { position: sticky; top: 76px; display: grid; gap: 14px; }
+  .caseslate { margin-bottom: 0; }
+  .cast { padding: 12px 14px; }
+  .witness .opts { grid-auto-flow: column; }
+}
+
+
+/* the cast list in the docket */
+.cast h4 { font-family: Bangers, Impact, sans-serif; font-weight: 400; letter-spacing: .06em; font-size: 1.15rem; margin: 0 0 8px; }
+.castrow { display: flex; align-items: center; gap: 10px; padding: 5px 0; opacity: .45; transition: opacity .25s; }
+.castrow.spoken { opacity: 1; }
+.castrow .face { width: 38px; height: 38px; flex: none; border: 2px solid var(--ink); border-radius: 50%; background: #fff; }
+.castrow .role { font-family: Bangers, Impact, sans-serif; letter-spacing: .05em; font-size: 1.05rem; }
+.castrow .tick { margin-left: auto; font-size: .95rem; }
+.docket .cast { display: none; }
+@media (min-width: 900px) { .docket .cast { display: block; } }
+
+/* page footer: credit where the sample book content comes from */
+.pagefoot { margin: 32px 0 0; font-size: .75rem; opacity: .65; font-weight: 700; border-top: 2px solid var(--ink); padding-top: 10px; }
+
+/* narrow action column in the case-file table */
+th:last-child, td:last-child { width: 1%; white-space: nowrap; }
+@media (min-width: 900px) { td .secondary { min-width: 0; } }
+
+
+/* ======================================================================
+   HOME — one big way in, everything else secondary
+   ====================================================================== */
+.hero { margin-top: 4px; }
+.herotext h1 { margin: 0; }
+.herotext .lead { margin: 12px 0 0; }
+.cta { display: flex; align-items: center; gap: 14px; text-align: left; padding: 16px 18px; font-size: 1.7rem; margin-top: 22px; }
+.cta .ico { width: 46px; height: 46px; flex: none; }
+.cta small { display: block; font-family: Nunito, system-ui, sans-serif; font-size: .85rem; font-weight: 800; letter-spacing: 0; opacity: .8; }
+.more { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; font-weight: 800; }
+.morelabel { grid-column: 1 / -1; font-size: .85rem; opacity: .75; margin-bottom: -2px; }
+.chip {
+  padding: 9px 8px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--panel); border: var(--line) solid var(--ink); border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--ink); cursor: pointer; font-weight: 800; font-size: .95rem;
+}
+.chip:hover { background: #fff3d6; }
+.setup { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 24px; align-items: start; margin-top: 26px;
+  padding-top: 20px; border-top: 2px dashed #15110d40; }
+.setup .cn-hint { grid-column: 1 / -1; max-width: 52ch; }
+.setup label { display: block; font-size: .85rem; font-weight: 800; }
+.setup label small { font-weight: 700; opacity: .7; }
+.setup input { width: 120px; }
+.setup select { width: 100%; max-width: 220px; height: 46px; padding: 0 10px; }
+
+/* the courtroom scene (desktop only): one inline SVG plus a comic caption box */
+.bench { display: none; position: relative; padding: 0; overflow: visible; background: none; border: 0; box-shadow: none; }
+#scene { border: var(--line) solid var(--ink); border-radius: 4px; box-shadow: var(--shadow); overflow: hidden; background: #f3e2bf; }
+.scene { display: block; width: 100%; height: auto; }
+.sceneplate { font-family: Bangers, Impact, sans-serif; font-size: 17px; letter-spacing: .06em; fill: #fff; }
+.scenesfx { font-family: Bangers, Impact, sans-serif; font-size: 30px; fill: var(--gold); stroke: var(--ink); stroke-width: 2.5px; paint-order: stroke fill; }
+.benchcap { position: absolute; left: -16px; top: -18px; max-width: 46%; padding: 8px 14px 10px; background: #fff7df;
+  border: var(--line) solid var(--ink); box-shadow: 4px 4px 0 var(--ink); transform: rotate(-1.5deg); font-weight: 800; }
+.benchcap .bang { display: block; margin-bottom: 2px; }
+.bang.small { font-size: 1.35rem; }
+
+/* how a trial works, as four small steps */
+.steps { list-style: none; padding: 0; margin: 34px 0 0; display: grid; gap: 12px; }
+.steps li { display: flex; gap: 10px; align-items: flex-start; font-size: .95rem; }
+.steps li > b { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%;
+  background: var(--ink); color: var(--gold); font-family: Bangers, Impact, sans-serif; font-size: 1.1rem; }
+
+/* re-hearing day */
+#rehearing:empty { display: none; }
+.rehear { margin: 4px 0 22px; padding: 18px; background: #e9f3ff; border-width: 4px; animation: shake .4s ease-out both; }
+.rehear.done { text-align: center; }
+.rehear.party { background: #dcf5e3; }
+
+/* ======================================================================
+   COURTROOM — a compact hearing, then two big moments
+   ====================================================================== */
+.sectionlabel { font-family: Bangers, Impact, sans-serif; letter-spacing: .08em; font-size: 1.05rem; opacity: .7; margin-bottom: 6px; }
+.hearing { padding: 12px 14px; }
+.lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.line { display: flex; gap: 10px; align-items: flex-start; }
+.line .face { width: 38px; height: 38px; flex: none; border: 2px solid var(--ink); border-radius: 50%; background: #fff; }
+.line .said { min-width: 0; }
+.line .tag { display: inline-block; font-family: Bangers, Impact, sans-serif; letter-spacing: .06em; font-size: .95rem;
+  padding: 0 7px; margin-right: 6px; color: #fff; background: var(--ink); border: 2px solid var(--ink); vertical-align: 1px; }
+.line.judge .tag { background: var(--purple); } .line.prosecutor .tag { background: var(--red); }
+.line.defence .tag { background: var(--blue); } .line.clerk .tag { background: var(--green); }
+.line .txt { font-size: 1rem; }
+.line .evidence { display: block; margin-top: 6px; padding: 4px 8px; font-size: .9rem; }
+.line.new { animation: lineIn .35s ease-out both; }
+@keyframes lineIn { from { opacity: 0; transform: translateY(6px); } }
+.evidence { background: #fff6d6; border: 2px solid var(--ink); font-style: italic; }
+.earlier { margin-bottom: 12px; font-size: .95rem; }
+.earlier summary { cursor: pointer; font-family: Bangers, Impact, sans-serif; letter-spacing: .05em; font-size: 1.1rem; opacity: .75; }
+.earlier .lines { margin-top: 8px; opacity: .75; }
+
+/* answered witnesses, as a short record (never says right or wrong) */
+.witlog { list-style: none; margin: 14px 0 0; padding: 4px 12px; background: #fff7df; border: 2px solid var(--ink); border-radius: 4px; }
+.witlog li { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; padding: 6px 0; font-size: .95rem; }
+.witlog li + li { border-top: 1px dashed #15110d55; }
+.witlog .wn { font-family: Bangers, Impact, sans-serif; letter-spacing: .06em; }
+.witlog .wa { margin-left: auto; }
+
+/* surprise witness — the first big moment */
+.witness, .rehear { padding: 18px; }
+.witness { background: #fff7df; border-width: 4px; animation: shake .45s ease-out both; }
+@keyframes shake {
+  0% { transform: scale(.92) rotate(-2deg); opacity: 0; }
+  60% { transform: scale(1.02) rotate(1deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.wtop { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.wcount { font-family: Bangers, Impact, sans-serif; letter-spacing: .06em; padding: 0 10px; background: var(--ink); color: var(--gold); }
+.bang {
+  display: inline-block; font-family: Bangers, Impact, sans-serif; font-size: 2rem; color: var(--gold);
+  -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; transform: rotate(-3deg);
+}
+.wq { font-size: clamp(1.35rem, 5.5vw, 1.8rem); font-weight: 800; margin: 12px 0 4px; line-height: 1.2; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 12px; }
+.optbtn { margin: 0; padding: 20px 12px; font-size: 2rem; background: #fff; min-height: 84px; }
+
+/* the verdict — the second big moment */
+.verdict { padding: 22px 18px 18px; text-align: center; border-width: 4px; animation: shake .45s ease-out both; }
+.verdict.win { background: #e3f6e9; } .verdict.learn { background: #f1eaff; }
+.verdict.help { background: #e7f0ff; } .verdict.oops { background: #ffe9e6; }
+.verdict .stamp { display: inline-block; }
+.vline { font-size: 1.15rem; font-weight: 800; margin: 12px auto 0; max-width: 46ch; }
+.vhint { margin: 12px 0 0; font-weight: 800; opacity: .75; }
+.lesson { text-align: left; margin: 16px auto 0; max-width: 60ch; padding: 14px; background: #fff; border: var(--line) solid var(--ink); border-radius: 4px; }
+.lesson p { margin: 4px 0 0; }
+.lessontitle { font-family: Bangers, Impact, sans-serif; font-size: 1.4rem; letter-spacing: .04em; color: var(--green); }
+.tryline { margin-top: 10px; padding: 8px 10px; background: #e7f6ec; border: 2px solid var(--ink); }
+.tryline details { margin-top: 4px; }
+.tryline summary { cursor: pointer; font-weight: 800; }
+.endrow { display: grid; gap: 12px; margin-top: 16px; }
+.endrow .primary { margin: 0; }
+.objection { margin: 0; }
+.objection summary { cursor: pointer; font-family: Bangers, Impact, sans-serif; letter-spacing: .05em; font-size: 1.25rem; }
+#courtActions { margin-top: 16px; scroll-margin-top: 76px; }
+@media (prefers-reduced-motion: reduce) { .line.new, .witness, .verdict, .rehear, .stamp { animation: none; } }
+
+@media (min-width: 900px) {
+  .endrow { grid-template-columns: 1fr auto; align-items: start; }
+  .endrow .primary { min-width: 220px; }
+  .opts { grid-template-columns: repeat(auto-fit, minmax(160px, 220px)); }
+  .stage { max-width: 760px; }
+}
+.setup label { display: flex; flex-direction: column; gap: 4px; }
+.setup input, .setup select { margin-top: 0; }
+
+.witness, .verdict, .rehear { scroll-margin-top: 76px; }
+.toggle span { color: var(--ink); }
+.toggle span svg path { fill: currentColor; stroke: currentColor; }
+.toggle span svg path:first-child { stroke: none; }
+.toggle input:not(:checked) + span { color: var(--paper); }
+.lessontext.clamp { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.readall { margin-top: 6px; padding: 0; background: none; border: 0; text-decoration: underline; cursor: pointer; font-weight: 800; }
+
+/* the secret court name */
+.courtname { display: flex; flex-direction: column; gap: 4px; }
+.cn-label, .setup label { font-size: .85rem; font-weight: 800; }
+.cn-row { display: flex; align-items: center; gap: 10px; }
+.cn-code { display: inline-flex; align-items: center; height: 46px; font-family: Bangers, Impact, sans-serif; font-size: 1.6rem;
+  letter-spacing: .06em; background: #fff; border: var(--line) solid var(--ink); padding: 0 12px; box-shadow: 3px 3px 0 var(--ink); }
+.cn-row input { height: 46px; margin-top: 0; }
+.cn-row input { width: 130px; text-transform: uppercase; }
+.cn-change { background: none; border: none; box-shadow: none; padding: 4px 2px; font-size: .9rem; font-weight: 800;
+  text-decoration: underline; cursor: pointer; color: var(--ink); }
+.cn-hint { font-size: .8rem; font-weight: 700; opacity: .75; line-height: 1.35; }
+
+@media (min-width: 900px) { .bench { display: block; margin: 18px 0 0 16px; } .herotext h1 { font-size: clamp(2.6rem, 4.6vw, 4rem); } }
+
+/* practice round */
+.practicego { margin-top: 18px; width: auto; display: inline-block; min-width: 260px; font-size: 1.5rem; }
+.practice { margin-top: 16px; padding: 18px; background: #e9f3ff; border: 4px solid var(--ink); border-radius: 4px;
+  box-shadow: var(--shadow); scroll-margin-top: 76px; animation: shake .45s ease-out both; }
+.practice.done { text-align: center; }
+.practice.done.win { background: #e3f6e9; }
+.ptip { margin: 10px 0 0; padding: 8px 10px; background: #fff; border: 2px solid var(--ink); font-weight: 700; }
+.optbtn.isright { background: #c9efd5; }
+.optbtn.iswrong { background: #ffd9d5; text-decoration: line-through; }
+.optbtn:disabled { opacity: 1; cursor: default; }
+.pfeed:empty { display: none; }
+.pfeed { margin-top: 14px; }
+.pgood, .pbad { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 1.2rem; }
+.ptick { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--green);
+  color: #fff; border: var(--line) solid var(--ink); font-size: 1.4rem; animation: stampin .3s cubic-bezier(.2,1.6,.4,1) both; }
+.pans { font-family: Bangers, Impact, sans-serif; font-size: 1.6rem; padding: 0 10px; background: #c9efd5; border: 2px solid var(--ink); }
+.pwhy { margin: 8px 0 0; font-weight: 700; }
+.pnext { margin-top: 12px; }
+@media (min-width: 900px) { .pnext { width: auto; min-width: 220px; } }
+
+/* one reading column for the simple screens, so headings, dividers and buttons line up */
+#upload, #cases, #practice, #episodes, #chapterview { max-width: 720px; }
+#upload .bigfile { max-width: none; }
+#upload textarea, #caseList .card, #practiceQ .card, #episodeList .card, #exerciseList .card { max-width: none; }
+#readHw { display: block; width: 100%; margin: 14px 0 0; }
+.or { margin: 14px 0; }
+
+/* teacher desk */
+#summ { margin: 4px 0 20px; }
+#summary { margin: 0 0 20px; white-space: pre-line; }
+.statline { margin: 6px 0; }
+@media (max-width: 699px) {
+  table, tbody, tr, td { display: block; width: 100%; }
+  thead { display: none; }
+  table { border-width: 0; background: none; }
+  tr { margin-bottom: 12px; background: var(--panel); border: var(--line) solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+  td { border-bottom: 1px dashed #15110d40; }
+  td:last-child { width: 100%; border-bottom: 0; }
+  td:first-child { font-family: Bangers, Impact, sans-serif; letter-spacing: .06em; font-size: 1.1rem; }
+}
+/* Devanagari and Tamil need more line height than the tight comic capitals */
+:lang(hi) h1, :lang(ta) h1, :lang(hi) h2, :lang(ta) h2 { line-height: 1.3; }
+
+/* second way in: the chapter check-up */
+.cta2 { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; margin-top: 14px; padding: 12px 18px;
+  font-size: 1.35rem; background: #fff; }
+.cta2 .ico { width: 38px; height: 38px; flex: none; }
+.cta2 small { display: block; font-family: Nunito, system-ui, sans-serif; font-size: .82rem; font-weight: 800; letter-spacing: 0; opacity: .75; }
+@media (min-width: 900px) { .cta2 { min-width: 0; margin-right: 0; } }
+
+/* class code (optional) */
+.classfield { grid-column: 1 / -1; }
+.classfield small { font-weight: 700; opacity: .7; }
+.cc-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; }
+.cc-row input { width: 170px; max-width: 100%; height: 46px; margin-top: 0; text-transform: uppercase; }
+.cc-row input::placeholder { text-transform: none; }
+.cc-status { font-weight: 800; font-size: .95rem; }
+.cc-status.ok { color: var(--green); }
+.cc-status.bad { color: var(--red); }
+
+/* say your homework */
+.sayrow { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 14px; margin-top: 12px; }
+.sayrow .hint { margin: 0; }
+.saybtn { width: auto; margin: 0; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; font-size: 1.2rem; min-width: 0; }
+.saybtn.on { background: var(--red); color: #fff; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 6px 6px 0 var(--ink), 0 0 0 6px #e03b2f55; } }
+@media (prefers-reduced-motion: reduce) { .saybtn.on { animation: none; } }
+
+/* check-up screen */
+.cu-setup { padding: 16px; }
+.cu-grade { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+.cu-grade select { width: auto; min-width: 90px; margin: 0; height: 44px; padding: 0 10px; }
+.cu-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 6px; }
+.chip.on { background: var(--gold); }
+.cu-msg { margin: 10px 0 0; padding: 8px 10px; background: #fff6d6; border: 2px solid var(--ink); font-weight: 800; }
+#cuBookSel { margin-top: 10px; }
+.cu-list { display: grid; gap: 10px; margin-top: 12px; }
+@media (min-width: 700px) { .cu-list { grid-template-columns: 1fr 1fr; } }
+.cu-topic { margin-top: 6px; font-size: .9rem; font-weight: 800; opacity: .7; }
+.optbtn.picked { background: var(--gold); transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--ink); }
+.cu-why { margin-top: 14px; }
+.cu-why summary { cursor: pointer; font-weight: 800; }
+.cu-lock { margin-top: 14px; }
+@media (min-width: 900px) { .cu-lock { width: auto; min-width: 240px; } }
+.cu-idea { margin: 10px auto 0; max-width: 46ch; }
+.cu-idea span { font-weight: 800; opacity: .75; }
+#checkup { max-width: 720px; }
+
+/* Touch screens: every control at least 44px, the size a child's finger needs (phones and tablets). */
+@media (pointer: coarse) {
+  .brand, .navlink, .cn-change, .toggle span, .chip, .back { min-height: 44px; }
+  .navlink, .brand { display: inline-flex; align-items: center; }
+  .toggle span { min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .cn-change { padding: 0 10px; display: inline-flex; align-items: center; }
+}
+
+/* ======================================================================
+   ALIVE — characters talk, cards slam in, wins get confetti
+   ====================================================================== */
+.line .said { position: relative; background: #fff; border: 2px solid var(--ink); border-radius: 14px; padding: 6px 10px 8px; }
+.line .said::before { content: ""; position: absolute; left: -9px; top: 12px; border: 7px solid transparent; border-right-color: var(--ink); border-left: 0; }
+.line .said::after { content: ""; position: absolute; left: -6px; top: 13px; border: 6px solid transparent; border-right-color: #fff; border-left: 0; }
+.line .tag { margin-bottom: 2px; }
+.line { transition: opacity .25s; }
+.line.dim { opacity: .45; }
+.line.speaking .face { animation: talk .5s ease-in-out infinite alternate; box-shadow: 0 0 0 3px var(--gold); }
+.line.speaking .said { box-shadow: 3px 3px 0 var(--ink); }
+.line.new { animation: lineIn .3s ease-out both; }
+@keyframes talk { from { transform: translateY(0) scale(1); } to { transform: translateY(-3px) scale(1.08) rotate(-3deg); } }
+.txt.typing::after { content: "▍"; margin-left: 1px; animation: blink 1s steps(1) infinite; }
+.castrow.talking { opacity: 1; }
+.castrow.talking .face { animation: talk .5s ease-in-out infinite alternate; box-shadow: 0 0 0 3px var(--gold); }
+.skipbtn { display: block; margin: 8px 0 0 auto; padding: 10px 16px; min-height: 44px; background: none; border: 2px dashed var(--ink);
+  border-radius: 999px; font-weight: 800; cursor: pointer; }
+
+.witness.slam { position: relative; overflow: visible; animation: slamIn .55s cubic-bezier(.2, 1.5, .4, 1) both; }
+@keyframes slamIn {
+  0% { transform: scale(1.5) rotate(-4deg); opacity: 0; }
+  45% { transform: scale(.96) rotate(1.5deg); opacity: 1; }
+  60% { transform: translateX(-6px) rotate(-1deg); } 75% { transform: translateX(5px) rotate(.5deg); }
+  100% { transform: none; opacity: 1; }
+}
+.burst { position: absolute; right: -6px; top: -26px; z-index: 2; padding: 14px 18px; font-family: Bangers, Impact, sans-serif; font-size: 1.6rem;
+  color: var(--ink); background: var(--gold); border: var(--line) solid var(--ink); pointer-events: none;
+  clip-path: polygon(50% 0, 61% 30%, 98% 18%, 72% 47%, 100% 70%, 64% 68%, 56% 100%, 42% 70%, 4% 86%, 28% 55%, 0 30%, 38% 32%);
+  animation: burst 1.1s ease-out .15s both; }
+@keyframes burst { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 25% { transform: scale(1.25) rotate(8deg); opacity: 1; }
+  70% { transform: scale(1) rotate(0); opacity: 1; } 100% { transform: scale(.9); opacity: 0; } }
+.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 50; }
+@media (prefers-reduced-motion: reduce) {
+  .line.speaking .face, .castrow.talking .face, .txt.typing::after { animation: none; }
+  .witness.slam, .burst { animation: none; } .burst { display: none; }
+}
+
+/* ======================================================================
+   QUESTIONS YOU CAN SEE — fraction bars and decimal grids
+   ====================================================================== */
+.optbtn.withvis { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px 12px 16px; }
+.optlabel { line-height: 1; }
+.vis { display: block; pointer-events: none; }
+.vis.bar { width: 100%; max-width: 200px; height: 22px; }
+.vis.grid { width: 76px; height: 76px; }
+.optbtn.picked .vis rect[fill="#fff"], .optbtn.isright .vis rect[fill="#fff"], .optbtn.iswrong .vis rect[fill="#fff"] { fill: #ffffffcc; }
+.whyproof { display: grid; gap: 10px; margin-top: 10px; align-items: center; }
+@media (min-width: 560px) { .whyproof { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.proof { display: grid; gap: 8px; padding: 10px 12px; background: #fff; border: 2px solid var(--ink); border-radius: 4px; }
+.proofrow { display: grid; grid-template-columns: 4.2em minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 4px; }
+.proofrow .vis.bar { max-width: none; }
+.proofrow .vis.grid { width: 64px; height: 64px; }
+.proofrow.big { background: #fff2c9; outline: 3px solid var(--gold); }
+.prooflabel { font-family: Bangers, Impact, sans-serif; font-size: 1.4rem; letter-spacing: .04em; }
+.biggest { font-family: Bangers, Impact, sans-serif; letter-spacing: .05em; padding: 0 8px; background: var(--ink); color: var(--gold); }
+.proofrow:not(.big) .biggest { visibility: hidden; }
+
+/* ======================================================================
+   TEACHING — asking questions, wrong answers, insights
+   ====================================================================== */
+.askhead { font-family: Bangers, Impact, sans-serif; font-size: 1.5rem; letter-spacing: .04em; color: var(--purple); margin-bottom: 4px; }
+.askline { margin: 8px 0 0; font-weight: 800; }
+.helpacts { margin-top: 16px; text-align: left; }
+.helpbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.helpbtns button { margin: 0; width: 100%; min-width: 0; }
+.retry { margin-top: 14px; }
+.retry .ans { margin-top: 0; }
+.retry .go { margin-top: 12px; width: 100%; }
+.lesson.taught { margin-top: 16px; animation: lineIn .35s ease-out both; }
+.insight { margin-top: 16px; padding: 18px; background: #fff; border: 4px solid var(--ink); border-radius: 4px; box-shadow: var(--shadow);
+  scroll-margin-top: 76px; animation: lineIn .4s ease-out both; }
+.insighttitle { font-family: Bangers, Impact, sans-serif; font-size: 1.35rem; letter-spacing: .05em; padding: 2px 10px; display: inline-block;
+  background: var(--ink); color: var(--gold); transform: rotate(-1deg); }
+.ihead { font-size: 1.2rem; font-weight: 800; margin: 12px 0 0; }
+.ipoints { margin: 10px 0 0; padding-left: 22px; }
+.ipoints li { margin: 6px 0; }
+.iremember { margin: 14px 0 0; padding: 10px 12px; background: #fff2c9; border: 2px solid var(--ink); border-left-width: 8px; font-weight: 700; }
+.inext { margin-top: 14px; width: 100%; }
+@media (min-width: 900px) { .inext, .retry .go { width: auto; min-width: 260px; } }
+
+/* ======================================================================
+   PHONES — 44px touch targets, small screens, landscape
+   ====================================================================== */
+.chip, .cn-change, .readall, .back, .cu-why summary, .objection summary, .tryline summary, .earlier summary { min-height: 44px; }
+.cn-change, .readall { display: inline-flex; align-items: center; }
+.cu-why summary, .objection summary, .tryline summary, .earlier summary { display: flex; align-items: center; }
+@media (max-width: 380px) {
+  main { padding: 12px; }
+  .cta { font-size: 1.45rem; padding: 14px; } .cta .ico { width: 38px; height: 38px; }
+  .chip { font-size: .85rem; padding: 9px 4px; }
+  .optbtn { font-size: 1.7rem; }
+  .bang { font-size: 1.7rem; }
+  .setup { grid-template-columns: minmax(0, 1fr); }
+  .setup select { max-width: none; }
+  .helpbtns { grid-template-columns: 1fr; }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .top { position: static; }
+  .witness.slam .opts, .practice .opts, .checkq .opts { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .vis.grid { width: 60px; height: 60px; }
+}
+
+/* ======================================================================
+   PASS 5 — words a child understands, honest verdicts, the court at work
+   ====================================================================== */
+/* numbers must be unmistakable: Bangers draws 7 almost like 1, so answers use the rounded body font */
+.optlabel, .pans, .prooflabel { font-family: Nunito, system-ui, sans-serif; font-weight: 800; letter-spacing: 0; }
+.optbtn .optlabel { font-size: 1.7rem; }
+.pans { font-size: 1.35rem; }
+.prooflabel { font-size: 1.15rem; }
+/* comic headings keep a bold look in scripts Bangers has no letters for */
+:lang(hi) .bang, :lang(hi) .stamp, :lang(hi) h1, :lang(hi) h2, :lang(hi) .insighttitle, :lang(hi) .cta,
+:lang(ta) .bang, :lang(ta) .stamp, :lang(ta) h1, :lang(ta) h2, :lang(ta) .insighttitle, :lang(ta) .cta {
+  font-family: Bangers, "Kohinoor Devanagari", "Noto Sans Devanagari", "Tamil Sangam MN", "Noto Sans Tamil", system-ui, sans-serif; font-weight: 800; }
+
+/* a wrong answer is not a failure: amber, not red */
+.stamp.amber { color: #b86a00; }
+.verdict.amber { background: #fff1d6; }
+
+/* the caught idea, said plainly */
+.thinkingwas { margin: 14px auto 0; max-width: 46ch; padding: 10px 14px; background: #fff; border: var(--line) solid var(--ink);
+  border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); }
+.thinkingwas span { display: block; font-weight: 800; opacity: .75; font-size: .95rem; }
+.thinkingwas .ideatext { display: block; font-size: 1.3rem; line-height: 1.25; margin-top: 2px; }
+.verdict .iremember { text-align: left; max-width: 46ch; margin-left: auto; margin-right: auto; }
+
+/* reason check */
+.feedback .fbpart { margin-top: 12px; padding: 8px 12px; border-left: 8px solid var(--ink); background: #fffaf0; }
+.feedback .fbpart.good { border-left-color: var(--green); }
+.feedback .fbpart.think { border-left-color: var(--gold); }
+.feedback .fbpart.try { border-left-color: var(--blue); }
+.fblabel { font-family: Bangers, Impact, sans-serif; letter-spacing: .05em; font-size: 1.15rem; }
+.fbtext { margin: 2px 0 0; font-weight: 700; }
+
+/* practice: a worked example after a low score */
+.worked { margin-top: 18px; padding-top: 16px; border-top: 2px dashed #15110d55; text-align: left; }
+.workedtitle { font-family: Bangers, Impact, sans-serif; font-size: 1.5rem; letter-spacing: .04em; color: var(--purple); }
+.worked .wq { font-size: 1.25rem; }
+.moretries { margin-top: 14px; width: 100%; }
+.practicego { min-height: 52px; }
+@media (min-width: 900px) { .moretries { width: auto; min-width: 240px; } }
+
+.whylabel { margin-top: 12px; font-weight: 800; }
+
+/* waiting: the court at work */
+.waitcourt { --who: 0; padding: 16px 12px 14px; background: #efe2c6; border: var(--line) solid var(--ink); border-radius: 4px;
+  box-shadow: var(--shadow); text-align: center; }
+.wcast { display: grid; grid-template-columns: repeat(4, 1fr); justify-items: center; gap: 6px; }
+.wp .face { width: 58px; height: 58px; border: var(--line) solid var(--ink); border-radius: 50%; background: #fff; transition: transform .25s, opacity .25s; opacity: .5; }
+.wp.on .face { opacity: 1; transform: translateY(-4px) scale(1.12); box-shadow: 0 0 0 4px var(--gold); animation: talk .5s ease-in-out infinite alternate; }
+.wbub { position: relative; margin: 14px auto 0; max-width: 420px; padding: 10px 14px; background: #fff; border: var(--line) solid var(--ink);
+  border-radius: 16px; font-weight: 800; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 2px; }
+.wbub::before { content: ""; position: absolute; top: -14px; left: calc((var(--who) + .5) * 25% - 10px); border: 10px solid transparent;
+  border-bottom-color: var(--ink); border-top: 0; transition: left .3s; }
+.wcap { margin-top: 10px; font-family: Bangers, Impact, sans-serif; letter-spacing: .05em; font-size: 1.05rem; opacity: .75; }
+@media (prefers-reduced-motion: reduce) { .wp.on .face { animation: none; transform: none; } }
+
+/* about (credits moved off the child's footer) */
+details.about { border-top: 2px solid var(--ink); }
+details.about summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 800; opacity: .75; }
+details.about p { margin: 4px 0 8px; }
+
+/* the courtroom scene on phones too, right under the main buttons */
+@media (max-width: 899px) {
+  .hero { display: flex; flex-direction: column; }
+  .herotext { display: contents; }
+  .herotext h1 { order: 1; } .herotext .lead { order: 2; } .cta { order: 3; } .cta2 { order: 4; }
+  .bench { order: 5; display: block; margin: 22px 6px 6px 10px; }
+  .more { order: 6; } .setup { order: 7; }
+  .benchcap { left: -10px; top: -14px; max-width: 58%; padding: 5px 10px 7px; font-size: .85rem; }
+  .benchcap .bang.small { font-size: 1.05rem; }
+}
+
+#summary { white-space: normal; }
+.line[hidden] { display: none; }
+.more { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.wbub .dots { margin-left: 2px; }
+.burst { right: auto; left: 46%; }
+
+/* Decorations never catch a tap: a child tapping fast during the witness's entrance must reach the answer buttons. */
+.burst, .bang, .stamp, .confetti, canvas.confetti { pointer-events: none; }
+.witness .opts, .checkq .opts, .practice .opts, .rehear .opts { position: relative; z-index: 3; }
+
+/* Nothing may ever push the page wider than the phone. A momentary overshoot (the witness card's bouncy entrance,
+   the BANG burst) made phones widen the layout to ~447px and never narrow it back, so taps landed ~180px off
+   and an answer button could not be tapped. Clip sideways overflow at the page edge. */
+html, body { overflow-x: hidden; }
+#app, .screen, #courtActions { overflow-x: clip; }
+
+/* the hidden attribute must win over the button display rule */
+[hidden] { display: none !important; }
+
+.needwhy { margin: 8px 0 4px; font-weight: 800; color: var(--ink); background: var(--gold); border: 2px solid var(--ink);
+  border-radius: 10px; padding: 6px 10px; }
+textarea.wantwhy { outline: 3px solid var(--gold); }
+/* The live court: each decision appears under the cast while the hearing runs. */
+.wlog { margin: 12px auto 0; max-width: 560px; text-align: left; }
+.wlog:empty { display: none; }
+.wlog .line .said { background: #fff; border: 2px solid var(--ink); border-radius: 12px; padding: 6px 10px; }
+.formerr { color: var(--red); font-weight: 700; margin: 6px 0; }
+.formerr:empty { display: none; }
+#courtActions:focus { outline: none; }
+/* Tamil and Devanagari letters join up: letter-spacing pulls them apart into single glyphs. */
+html:lang(ta) *, html:lang(hi) * { letter-spacing: normal !important; }
+html:lang(ta) input::placeholder { font-size: .85em; }

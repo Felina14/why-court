@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Court · Teacher</title>
+<link rel="icon" href="/favicon.ico" type="image/svg+xml">
+<link rel="stylesheet" href="/static/style.css?v=16">
+</head>
+<body>
+<header class="top">
+  <a href="/" class="brand" style="text-decoration:none" aria-label="Why Court home">⚖ WHY COURT</a>
+  <nav class="nav"><a class="navlink" href="/">← Back to the court</a></nav>
+</header>
+<main>
+  <!-- LOCKED: open a class or start one -->
+  <section id="lock">
+    <div class="issue">Teacher desk</div>
+    <h2>Your class's case files</h2>
+    <p class="lead">Each class has its own desk, locked with a PIN. Pupils join with the class code; you open it with the code and your PIN.</p>
+    <div class="lockgrid">
+      <form class="card lockcard" id="openForm">
+        <h3>Open my class</h3>
+        <label>Class code<input id="oCode" autocomplete="off" placeholder="e.g. 5B-K7Q2" required></label>
+        <label>PIN<input id="oPin" type="password" inputmode="numeric" autocomplete="off" required></label>
+        <p class="formerr" id="oErr" aria-live="polite"></p>
+        <button class="primary" type="submit">Open the desk</button>
+      </form>
+      <form class="card lockcard" id="newForm">
+        <h3>Start a new class</h3>
+        <label>Class name<input id="nName" autocomplete="off" placeholder="e.g. Class 5B" required maxlength="40"></label>
+        <label>Choose a PIN (4 to 8 digits)<input id="nPin" type="password" inputmode="numeric" autocomplete="off" required></label>
+        <p class="formerr" id="nErr" aria-live="polite"></p>
+        <button class="secondary" type="submit">Create the class</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- NEW CLASS: show the code big -->
+  <section id="newcode" hidden>
+    <div class="card codecard">
+      <div class="issue">Class created</div>
+      <h2 id="ncName"></h2>
+      <p class="lead">Give your pupils this code. They type it under their court name.</p>
+      <div class="bigcode" id="ncCode"></div>
+      <p class="hint">Keep your PIN private: it opens this class's case files.</p>
+      <button class="primary" id="ncGo">Open the desk</button>
+    </div>
+  </section>
+
+  <!-- THE DESK -->
+  <section id="desk" hidden>
+    <div class="deskbar"><div class="issue" id="deskClass">Teacher desk</div>
+      <span class="deskcode">Class code: <b id="deskCode"></b></span><button class="cn-change" id="switch">Switch class</button></div>
+    <h2>Case files</h2>
+    <p class="lead">Every finding is advisory. Nothing reaches a report card until you approve it.</p>
+    <p class="statline" id="stats">Loading…</p>
+    <p class="statline" id="learning" hidden></p>
+    <button class="primary" id="summ">Draft tomorrow's reteach plan</button>
+    <div id="summary" class="card" hidden></div>
+    <table><thead><tr><th>Court name</th><th>Question</th><th>Hidden idea</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+    <h2>How each trial went</h2>
+    <p class="lead">For each child: their question and reason, the questions the court asked, what they picked, and what the
+      court decided.</p>
+    <div id="files"></div>
+  </section>
+  <p class="pagefoot">Why Court is advisory: a teacher approves every finding. No names are stored.
+    Sample book content is based on IM® K–12 Math by Illustrative Mathematics, used under CC BY 4.0.</p>
+</main>
+<style>
+  .file { margin: 14px 0; }
+  .file summary { cursor: pointer; font-weight: 800; }
+  .path { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+  .node { border: 2px solid var(--ink); padding: 2px 8px; background: #fff; font-weight: 800; font-size: .85rem; }
+  .node small { font-weight: 600; }
+  .arrow { font-weight: 800; }
+  .kv { font-size: .9rem; margin: 4px 0; }
+  .kv b { display: inline-block; min-width: 92px; }
+  .tools { font-size: .8rem; opacity: .85; }
+  .wit { font-size: .9rem; border-left: 4px solid var(--ink); padding-left: 8px; margin: 6px 0; }
+  .fstatus { font-weight: 800; padding: 0 6px; background: #fff2c9; border: 2px solid var(--ink); }
+  .fqs, .fdid { margin: 4px 0 8px; padding-left: 22px; font-size: .92rem; }
+  .techlog { margin-top: 10px; font-size: .85rem; }
+  .techlog summary { cursor: pointer; opacity: .7; font-weight: 800; min-height: 44px; display: flex; align-items: center; }
+  #summary h4 { margin: 12px 0 4px; font-size: 1.1rem; } #summary p { margin: 4px 0; } #summary ul, #summary ol { margin: 4px 0; padding-left: 22px; }
+  .lockgrid { display: grid; gap: 18px; margin-top: 18px; }
+  @media (min-width: 800px) { .lockgrid { grid-template-columns: 1fr 1fr; max-width: 920px; } }
+  .lockcard { margin: 0; padding: 18px; }
+  .lockcard h3 { margin: 0 0 8px; }
+  .lockcard label { display: block; margin-top: 10px; font-size: .9rem; font-weight: 800; }
+  .lockcard input { display: block; width: 100%; max-width: none; padding: 12px; margin-top: 6px; background: #fff;
+    border: var(--line) solid var(--ink); border-radius: 4px; font: inherit; font-weight: 700; }
+  #desk table { margin-bottom: 28px; }
+  .lockcard .primary, .lockcard .secondary { width: 100%; min-width: 0; margin: 14px 0 0; }
+  .formerr { min-height: 1.2em; margin: 8px 0 0; color: var(--red); font-weight: 800; }
+  .codecard { max-width: 560px; padding: 22px; text-align: center; }
+  .bigcode { display: inline-block; margin: 10px 0; padding: 8px 22px; font-family: Bangers, Impact, sans-serif; font-size: clamp(2.4rem, 11vw, 3.6rem);
+    letter-spacing: .08em; background: #fff; border: 4px solid var(--ink); box-shadow: var(--shadow); }
+  .codecard .primary { width: 100%; min-width: 0; margin: 14px 0 0; }
+  .deskbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+  .deskcode { font-weight: 800; }
+</style>
+<script src="/static/config.js?v=16"></script>
+<script>
+const API = window.WHYCOURT_API || "";
+const DEV = new URLSearchParams(location.search).has("dev");   // /teacher?dev shows each case's technical log
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// The desk is per class: every call carries the class code and PIN in headers (never in the address, so they stay
+// out of logs and history), kept for this browser tab only.
+const $ = (id) => document.getElementById(id);
+let auth = null;
+try { auth = JSON.parse(sessionStorage.getItem("wc-teacher") || "null"); } catch (e) { auth = null; }
+const H = () => ({ "X-Class-Code": auth.code, "X-Class-Pin": auth.pin });
+function showOnly(id) { ["lock", "newcode", "desk"].forEach((x) => ($(x).hidden = x !== id)); window.scrollTo(0, 0); }
+function remember(a) { auth = a; try { sessionStorage.setItem("wc-teacher", JSON.stringify(a)); } catch (e) { /* storage off */ } }
+async function openDesk() {
+  const r = await fetch(API + "/api/teacher", { headers: H() });
+  if (r.status === 429) return { error: "Too many tries. Wait 10 minutes and try again." };
+  if (r.status === 401 || r.status === 403) return { error: "Wrong code or PIN" };
+  if (!r.ok) return { error: "The desk isn't available right now." };
+  const data = await r.json();
+  const cls = data.class || {};
+  if (cls.code) remember({ ...auth, code: cls.code, name: cls.name || auth.name });
+  $("deskClass").textContent = cls.name || data.class_name || auth.name || "Teacher desk";
+  $("deskCode").textContent = cls.code || auth.code;
+  showOnly("desk");
+  render(data);
+  return {};
+}
+$("openForm").onsubmit = async (e) => {
+  e.preventDefault(); $("oErr").textContent = "";
+  remember({ code: $("oCode").value.trim().toUpperCase(), pin: $("oPin").value.trim(), name: "" });
+  const res = await openDesk();
+  if (res.error) { $("oErr").textContent = res.error; sessionStorage.removeItem("wc-teacher"); }
+};
+$("newForm").onsubmit = async (e) => {
+  e.preventDefault(); $("nErr").textContent = "";
+  const pin = $("nPin").value.trim();
+  if (!/^[0-9]{4,8}$/.test(pin)) { $("nErr").textContent = "The PIN must be 4 to 8 digits."; return; }
+  let r;
+  try { r = await fetch(API + "/api/classes", { method: "POST", headers: { "Content-Type": "application/json" },
+                                          body: JSON.stringify({ name: $("nName").value.trim(), pin }) }); } catch (err) { r = null; }
+  if (!r) { $("nErr").textContent = "Couldn't reach the court. Check the connection and try again."; return; }
+  if (!r.ok) {
+    let msg = "Couldn't create the class right now.";
+    try { const d = (await r.json()).detail; if (typeof d === "string") msg = d; } catch (err) { /* keep the general message */ }
+    $("nErr").textContent = r.status === 400 ? "Give your class a name, and a PIN of 4 to 8 digits." : msg; return;
+  }
+  const c = await r.json();
+  remember({ code: c.code, pin, name: c.name });
+  $("ncName").textContent = c.name; $("ncCode").textContent = c.code;
+  showOnly("newcode");
+};
+$("ncGo").onclick = async () => { const res = await openDesk(); if (res.error) { showOnly("lock"); $("oErr").textContent = res.error; } };
+$("switch").onclick = () => { auth = null; try { sessionStorage.removeItem("wc-teacher"); } catch (e) { /* off */ } $("oPin").value = ""; showOnly("lock"); };
+async function load() {
+  const r = await fetch(API + "/api/teacher", { headers: H() });
+  if (!r.ok) { if (r.status === 401 || r.status === 403) $("switch").click(); return; }
+  render(await r.json());
+}
+function render(r) {
+  const n = (k, one, many) => `${k} ${k === 1 ? one : many}`;
+  document.getElementById("stats").textContent = `${n(r.total_trials, "trial", "trials")} · ${r.closed} reasoning held · ${n(r.confirmed.length, "hidden idea", "hidden ideas")} found`;
+  const rh = r.rehearings, lc = document.getElementById("learning");
+  if (rh && rh.done) { lc.hidden = false; lc.textContent = `Learning check: ${rh.fixed} of ${rh.done} re-hearings showed the wrong idea gone`; }
+  document.getElementById("rows").innerHTML = r.confirmed.map((t) => `<tr><td>${esc(t.player)}</td><td>${esc(t.case.question)}${t.case.student_why ? `<br><small>“${esc(t.case.student_why)}”</small>` : ""}</td><td>${esc(t.misconception)}</td>
+    <td>${t.teacher_approved ? "✅" : `<button class="secondary" onclick="approve('${t.trial_id}')">Approve</button>`}</td></tr>`).join("") || `<tr><td colspan="4">None yet.</td></tr>`;
+  document.getElementById("files").innerHTML = (r.recent || []).map(caseFile).join("") || "<p>No trials yet.</p>";
+}
+// Teacher words for what happened; the technical detail stays in a collapsed log for developers.
+const STATUS = { misconception_found: "Hidden idea found", cleared: "Reasoning held up", case_closed: "No verdict",
+                 help: "Not quite yet (wrong answer)", explain_again: "Waiting for a reason", awaiting_witness: "Still answering",
+                 open: "Just started" };
+function statusWords(f) {
+  if (f.status === "case_closed") return { held_up: "Reasoning held up", out_of_scope: "Not something the court can test yet" }[f.verdict_kind] || "No verdict";
+  return STATUS[f.status] || f.status;
+}
+const DID = {
+  prosecutor: { charge: "The Prosecutor suspected a wrong idea", no_case: "The Prosecutor found nothing wrong with the reason" },
+  defence: { sound: "The Defence argued the reason works", doubtful: "The Defence was not sure the reason works" },
+  judge: { cross_examine: "The Judge asked follow-up questions", case_closed: "The Judge closed the case without questions" },
+  clerk: { trial: "The answer was right, so the reason was heard", wrong_answer: "The answer was not right yet" },
+};
+const LABEL = { hearing: "hearing (Swarm)", examiner: "witness stand", tutor: "tutor" };
+function caseFile(f) {
+  const r = f.rulings || {};
+  const did = ["clerk", "prosecutor", "defence", "judge"].map((k) => r[k] && (DID[k]?.[r[k].decision] || `${k}: ${r[k].decision}`)).filter(Boolean);
+  const verdict = r.examiner ? ({ misconception_found: "The child's answers showed the wrong idea",
+    cleared: "The child's answers matched correct understanding", not_proven: "The answers did not settle it" }[r.examiner.decision] || r.examiner.decision) : "";
+  if (verdict) did.push(verdict);
+  const qs = (f.witnesses || []).map((w, i) => `<li><b>Question ${i + 1}:</b> ${esc(w.question)} — picked <b>${esc(w.answer)}</b>
+      ${w.answer === w.answer_if_sound ? "(correct)" : `(correct: ${esc(w.answer_if_sound)})`}</li>`).join("");
+  const idea = f.misconception || r.examiner?.wrong_idea || r.judge?.wrong_idea;
+  // technical log
+  const nodes = [];
+  (f.timeline || []).forEach((n) => {
+    const last = nodes[nodes.length - 1];
+    if (last && last.node === n.node) { last.visits++; last.seconds = n.seconds ?? last.seconds; }
+    else nodes.push({ node: n.node, visits: 1, seconds: n.seconds });
+  });
+  const path = nodes.map((n) => `<span class="node">${esc(LABEL[n.node] || n.node)}${n.visits > 1 ? ` ×${n.visits}` : ""}
+      <small>${n.seconds != null ? n.seconds + "s" : ""}</small></span>`).join('<span class="arrow">→</span>');
+  const tech = (k, who) => r[k] ? `<div class="kv"><b>${who}</b> ${esc(r[k].decision)}${r[k].suspects?.length ? ` · suspects: ${esc(r[k].suspects.join(", "))}` : ""}</div>` : "";
+  const preds = (f.witnesses || []).map((w, i) => `<div class="wit">Question ${i + 1} (graph interrupt): ${Object.entries(w.predictions || {})
+      .map(([id, p]) => `“${esc(id)}” predicts ${esc(p)}`).join(" · ")}</div>`).join("");
+  const tools = (f.tools || []).map((t) => `${esc(t.agent)}→${esc(t.tool)}`).join(" · ");
+  const when = f.when ? new Date(f.when * 1000).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "";
+  return `<details class="card file"><summary><b>${esc(f.player || "guest")}</b>${when ? ` <small>${esc(when)}</small>` : ""} · ${esc(f.question)}${f.why ? ` — “${esc(f.why)}”` : ""} · <span class="fstatus">${esc(statusWords(f))}</span></summary>
+    <div class="kv"><b>Their answer</b> ${esc(f.answer || "—")}${f.why ? ` · <b>their reason</b> “${esc(f.why)}”` : " · <i>no reason given</i>"}</div>
+    ${idea && f.status === "misconception_found" ? `<div class="kv"><b>Hidden idea</b> ${esc(idea)}</div>` : ""}
+    ${qs ? `<div class="kv"><b>Questions the court asked</b></div><ol class="fqs">${qs}</ol>` : ""}
+    ${did.length ? `<div class="kv"><b>What the court did</b></div><ul class="fdid">${did.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>` : ""}
+    ${f.practice ? `<div class="kv"><b>Practice round:</b> ${esc(f.practice.score)} of ${esc(f.practice.of)} right${
+      f.practice.answered < f.practice.of ? ` (${esc(f.practice.answered)} answered so far)` : ""}</div>` : ""}
+    ${f.rehearing ? `<div class="kv"><b>Re-hearing (a few days later):</b> ${f.rehearing.done
+      ? `${esc(f.rehearing.right)} of ${esc(f.rehearing.of)} right · ${esc({ fixed: "the idea is gone", still_there: "the idea is still there", mixed: "partly fixed" }[f.rehearing.result] || f.rehearing.result)}`
+      : `booked for ${esc(new Date(f.rehearing.due_at * 1000).toLocaleDateString())}`}</div>` : ""}
+    ${f.reteach ? `<div class="kv"><b>Lesson shown</b> ${esc(f.reteach.title)}: ${esc(f.reteach.explanation)}</div>` : ""}
+    <details class="techlog" ${DEV ? "" : "hidden"}><summary>Technical log (for developers)</summary>
+      <div class="path">${path || "<i>no graph run</i>"}</div>
+      ${tech("usher", "Usher")}${tech("clerk", "Clerk")}${tech("prosecutor", "Prosecutor")}${tech("defence", "Defence")}${tech("judge", "Judge")}${tech("examiner", "Examiner")}
+      ${preds}
+      ${f.overruled?.length ? `<div class="kv"><b>Court-rules hook</b> ${esc(f.overruled.join("; "))}</div>` : ""}
+      ${f.error ? `<div class="kv"><b>Error</b> ${esc(f.error)}</div>` : ""}
+      <div class="tools">Tool calls: ${tools || "—"}</div>
+    </details></details>`;
+}
+// The reteach plan arrives as markdown: escape everything first, then allow headings, bold and lists only.
+function miniMarkdown(md) {
+  const inline = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*([^*]+)\*/g, "$1<i>$2</i>");
+  const out = []; let list = null;
+  const close = () => { if (list) { out.push(`</${list}>`); list = null; } };
+  String(md || "").split(/\r?\n/).forEach((raw) => {
+    const line = raw.trim();
+    let m;
+    if (!line) { close(); return; }
+    if ((m = line.match(/^#{1,6}\s+(.*)$/))) { close(); out.push(`<h4>${inline(m[1])}</h4>`); return; }
+    if ((m = line.match(/^[-*•]\s+(.*)$/))) { if (list !== "ul") { close(); out.push("<ul>"); list = "ul"; } out.push(`<li>${inline(m[1])}</li>`); return; }
+    if ((m = line.match(/^\d+[.)]\s+(.*)$/))) { if (list !== "ol") { close(); out.push("<ol>"); list = "ol"; } out.push(`<li>${inline(m[1])}</li>`); return; }
+    close(); out.push(`<p>${inline(line)}</p>`);
+  });
+  close();
+  return out.join("");
+}
+async function approve(id) { await fetch(API + `/api/teacher/approve/${id}`, { method: "POST", headers: H() }); load(); }
+document.getElementById("summ").onclick = async () => {
+  const b = document.getElementById("summ"); b.textContent = "Thinking…";
+  const box = document.getElementById("summary");
+  try {
+    const res = await fetch(API + "/api/teacher/summary", { method: "POST", headers: H() });
+    if (res.ok) box.innerHTML = miniMarkdown((await res.json()).summary); else box.textContent = "Couldn't draft a plan right now.";
+  } catch (e) { box.textContent = "Couldn't draft a plan right now."; }
+  box.hidden = false; b.textContent = "Draft tomorrow's reteach plan";
+};
+if (auth) openDesk().then((res) => { if (res.error) showOnly("lock"); }); else showOnly("lock");
+</script>
+</body>
+</html>

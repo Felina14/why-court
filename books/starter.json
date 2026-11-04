@@ -1,0 +1,44 @@
+{
+ "book_id": "starter",
+ "title": "Why Court Starter Book (Grade 5)",
+ "subject": "mixed",
+ "grade": "5",
+ "origin": "bundled",
+ "licence": "Written for Why Court. MIT.",
+ "chapters": [
+  {"chapter_id": "c1", "number": "1", "title": "Comparing fractions", "pages": [1, 1],
+   "key_rules": "A fraction's size depends on both numbers. To compare, make the bottom numbers (denominators) the same, or compare each fraction with one half. With the same top number, more pieces means smaller pieces.",
+   "exercises": [
+    {"id": "1.1 Q1", "text": "Which is bigger: 3/5 or 2/4?", "options": ["3/5", "2/4"], "answer": "3/5"},
+    {"id": "1.1 Q2", "text": "Which is bigger: 1/3 or 1/6?", "options": ["1/3", "1/6"], "answer": "1/3"},
+    {"id": "1.1 Q3", "text": "Which is bigger: 4/5 or 2/3?", "options": ["4/5", "2/3"], "answer": "4/5"},
+    {"id": "1.2 Q1", "text": "Which is bigger: 5/8 or 1/2?", "options": ["5/8", "1/2"], "answer": "5/8"}
+   ]},
+  {"chapter_id": "c2", "number": "2", "title": "Decimals", "pages": [2, 2],
+   "key_rules": "Compare decimals place by place from the left: tenths first, then hundredths. 0.4 is the same as 0.40. More digits does not mean bigger.",
+   "exercises": [
+    {"id": "2.1 Q1", "text": "Which is bigger: 0.45 or 0.4?", "options": ["0.45", "0.4"], "answer": "0.45"},
+    {"id": "2.1 Q2", "text": "Which is bigger: 0.7 or 0.65?", "options": ["0.7", "0.65"], "answer": "0.7"},
+    {"id": "2.1 Q3", "text": "Which is bigger: 0.125 or 0.2?", "options": ["0.125", "0.2"], "answer": "0.2"}
+   ]},
+  {"chapter_id": "c3", "number": "3", "title": "Negative numbers", "pages": [3, 3],
+   "key_rules": "On a number line, numbers get bigger to the right. -2 is to the right of -7, so -2 is bigger.",
+   "exercises": [
+    {"id": "3.1 Q1", "text": "Which is bigger: -2 or -7?", "options": ["-2", "-7"], "answer": "-2"},
+    {"id": "3.1 Q2", "text": "Which is colder: -3 degrees or -8 degrees?", "options": ["-3 degrees", "-8 degrees"], "answer": "-8 degrees"}
+   ]},
+  {"chapter_id": "c4", "number": "4", "title": "Seasons and the Sun (Science)", "pages": [4, 4],
+   "key_rules": "Earth's tilted axis causes seasons. In summer, sunlight hits more directly and days are longer. Earth's distance from the Sun does not cause the seasons.",
+   "exercises": [
+    {"id": "4.1 Q1", "text": "Why is it hotter in summer than in winter?", "options": [], "answer": "Sunlight hits more directly and days are longer because of Earth's tilt"},
+    {"id": "4.1 Q2", "text": "Is it colder or warmer on a mountain top than at its foot?", "options": ["colder", "warmer"], "answer": "colder"}
+   ]},
+  {"chapter_id": "c5", "number": "5", "title": "A and An (English)", "pages": [5, 5],
+   "key_rules": "Use 'an' before a vowel SOUND and 'a' before a consonant SOUND. It is the sound that matters, not the letter: an hour, a university.",
+   "exercises": [
+    {"id": "5.1 Q1", "text": "Fill in: ___ hour", "options": ["a", "an"], "answer": "an"},
+    {"id": "5.1 Q2", "text": "Fill in: ___ umbrella", "options": ["a", "an"], "answer": "an"},
+    {"id": "5.1 Q3", "text": "Fill in: ___ university", "options": ["a", "an"], "answer": "a"}
+   ]}
+ ]
+}

@@ -1,0 +1,18 @@
+# Why Court
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# local trial store, uploaded textbooks, eval output
+data/
+trial_log*.json
+run_*.txt
+
+# editors / OS
+.DS_Store
+.idea/
+.vscode/
+_to_delete/
+build/

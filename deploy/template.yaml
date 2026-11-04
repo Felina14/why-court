@@ -1,0 +1,210 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Why Court, serverless. The comic UI: S3 + CloudFront. The API: one Lambda function (FastAPI + the Strands court)
+  behind an HTTPS function URL, called straight from the browser (CORS: only the CloudFront site), because a hearing
+  can outlast CloudFront's 60 s origin timeout. A private S3 bucket keeps trials, classes, re-hearings, uploaded books
+  and paused Strands sessions. Nothing runs (or costs) while no one is using it, beyond a few cents of storage.
+
+Parameters:
+  CodeBucket: {Type: String}
+  CodeKey: {Type: String}
+  GuardrailId: {Type: String}
+  GuardrailVersion: {Type: String, Default: "1"}
+  RehearDays: {Type: String, Default: "7"}
+
+Resources:
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
+
+  CourtRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: lambda.amazonaws.com}
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: why-court-least-privilege
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: NovaModels
+                Effect: Allow
+                Action: [bedrock:InvokeModel, bedrock:InvokeModelWithResponseStream]
+                Resource:   # in-region, the US cross-region profile and the global profile (see agents.ROUTES)
+                  - arn:aws:bedrock:*::foundation-model/amazon.nova-*
+                  - arn:aws:bedrock:::foundation-model/amazon.nova-*
+                  - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/us.amazon.nova-*
+                  - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/global.amazon.nova-*
+              - Sid: Guardrail
+                Effect: Allow
+                Action: bedrock:ApplyGuardrail
+                Resource: !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:guardrail/${GuardrailId}
+              - Sid: Voices
+                Effect: Allow
+                Action: polly:SynthesizeSpeech
+                Resource: "*"
+              - Sid: Records
+                Effect: Allow
+                Action: [s3:GetObject, s3:PutObject, s3:DeleteObject]
+                Resource: !Sub ${DataBucket.Arn}/whycourt/*
+              - Sid: ListRecords
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt DataBucket.Arn
+
+  CourtLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AWS::StackName}-court
+      RetentionInDays: 14
+
+  Court:
+    Type: AWS::Lambda::Function
+    DependsOn: CourtLogs
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-court
+      Runtime: python3.12
+      Architectures: [arm64]
+      Handler: app.server.handler
+      Code: {S3Bucket: !Ref CodeBucket, S3Key: !Ref CodeKey}
+      Role: !GetAtt CourtRole.Arn
+      MemorySize: 2048
+      Timeout: 900            # a trial is a minute or two of agent calls; a function URL allows up to 15 minutes
+      EphemeralStorage: {Size: 1024}
+      Environment:
+        Variables:
+          WHYCOURT_BUCKET: !Ref DataBucket
+          WHYCOURT_SESSION_BUCKET: !Ref DataBucket
+          WHYCOURT_GUARDRAIL_ID: !Ref GuardrailId
+          WHYCOURT_GUARDRAIL_VERSION: !Ref GuardrailVersion
+          WHYCOURT_REHEAR_DAYS: !Ref RehearDays
+          WHYCOURT_DATA: /tmp/data/trials.json
+          WHYCOURT_BOOKS: /tmp/data/books
+          WHYCOURT_SESSIONS: /tmp/data/sessions
+
+  CourtUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !GetAtt Court.Arn
+      AuthType: NONE
+      InvokeMode: BUFFERED
+      Cors:
+        AllowOrigins: [!Sub "https://${Site.DomainName}"]
+        AllowMethods: [GET, POST]
+        AllowHeaders: [content-type, x-class-code, x-class-pin]
+        MaxAge: 3600
+
+  PublicUrl:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref Court
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+  PublicInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref Court
+      Action: lambda:InvokeFunction
+      Principal: "*"
+      InvokedViaFunctionUrl: true
+
+  # ---------------- the UI: a private bucket, served only through CloudFront ----------------
+  UiBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  UiAccess:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub ${AWS::StackName}-ui
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  Pages:   # /teacher -> /teacher.html (the same addresses as the local server)
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub ${AWS::StackName}-pages
+      AutoPublish: true
+      FunctionConfig: {Comment: "clean page addresses", Runtime: cloudfront-js-2.0}
+      FunctionCode: |
+        function handler(event) {
+          var r = event.request;
+          if (r.uri === "/teacher" || r.uri === "/teacher/") r.uri = "/teacher.html";
+          return r;
+        }
+
+  Site:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: Why Court UI
+        DefaultRootObject: index.html
+        HttpVersion: http2and3
+        PriceClass: PriceClass_All
+        Origins:
+          - Id: ui
+            DomainName: !GetAtt UiBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt UiAccess.Id
+            S3OriginConfig: {OriginAccessIdentity: ""}
+        DefaultCacheBehavior:
+          TargetOriginId: ui
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          AllowedMethods: [GET, HEAD]
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6   # Managed-CachingOptimized
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt Pages.FunctionMetadata.FunctionARN
+
+  UiBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref UiBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: cloudfront.amazonaws.com}
+            Action: s3:GetObject
+            Resource: !Sub ${UiBucket.Arn}/*
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${Site}
+
+Outputs:
+  Site:
+    Value: !Sub https://${Site.DomainName}/
+  SiteId:
+    Value: !Ref Site
+  UiBucket:
+    Value: !Ref UiBucket
+  Url:
+    Value: !GetAtt CourtUrl.FunctionUrl
+  Bucket:
+    Value: !Ref DataBucket
+  Function:
+    Value: !Ref Court
